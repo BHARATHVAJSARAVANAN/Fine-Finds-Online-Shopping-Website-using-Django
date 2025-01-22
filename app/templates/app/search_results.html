@@ -1,0 +1,39 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}Search Results{% endblock title %}
+
+{% block main-content %}
+<div class="d-flex justify-content-center align-items-center flex-column">
+    <h2 class="text-center">Search Results for "{{ query }}"</h2>
+
+    {% if products %}
+        <div class="col-sm-8">
+            <div class="row justify-content-center">
+                {% for product in products %}
+                <div class="col-sm-4 text-center mb-4">
+                    <a href="{% url 'product-detail' product.id %}" class="btn">
+                        <div class="item">
+                            <img
+                                src="{{ product.product_image.url }}"
+                                alt=""
+                                height="300"
+                                class=""
+                            />
+                            <div class="fw-bold">{{ product.title }}</div>
+                            <div class="fw-bold">
+                                {{ product.discounted_price }}
+                                <small class="fw-light text-decoration-line-through">
+                                    {{ product.selling_price }}
+                                </small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p>No products found.</p>
+    {% endif %}
+</div>
+{% endblock main-content %}

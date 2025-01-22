@@ -1,0 +1,219 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}Cart{% endblock title %}
+{% block main-content %}
+
+<div class="container my-5">
+  <div class="row">
+    <h1 class="text-center mb-5">Shopping Cart</h1>
+    <div class="col-sm-8">
+      <div class="card">
+        <div class="card-body">
+          <h3>Cart</h3>
+          <form id="cart-form" method="POST" action="{% url 'checkout' %}">
+            {% csrf_token %}
+            {% for cart in carts %}
+              <hr />
+              <div class="row">
+                <div class="col-sm-3 text-center align-self-center">
+                  <img
+                    src="{{ cart.product.product_image.url }}"
+                    alt=""
+                    class="img-fluid img-thumbnail shadow-sm"
+                    height="150"
+                    width="150"
+                  />
+                </div>
+                <div class="col-sm-9">
+                  <div>
+                    <h5>{{ cart.product.title }}</h5>
+                    <p class="mb-2 text-muted small">{{ cart.product.description }}</p>
+                    <div class="my-3">
+                      <label for="quantity">Quantity:</label>
+                      <a class="minus-cart btn" pid="{{ cart.product.id }}">
+                        <i class="fas fa-minus-square fa-lg"></i>
+                      </a>
+                      <span id="quantity">{{ cart.quantity }}</span>
+                      <a class="plus-cart btn" pid="{{ cart.product.id }}">
+                        <i class="fas fa-plus-square fa-lg"></i>
+                      </a>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <a
+                        href="#"
+                        class="remove-cart btn btn-sm btn-secondary mr-3"
+                        pid="{{ cart.product.id }}"
+                      >Remove item</a>
+                      <p class="mb-0">
+                        <strong>Rs. {{ cart.product.discounted_price }}</strong>
+                      </p>
+                      <!-- Add checkbox with label -->
+                      <div class="form-check">
+                        <input 
+                          class="form-check-input cart-checkbox" 
+                          type="checkbox" 
+                          data-price="{{ cart.product.discounted_price }}" 
+                          data-quantity="{{ cart.quantity }}" 
+                          data-product-id="{{ cart.product.id }}" 
+                          name="selected_products" 
+                          value="{{ cart.product.id }}" />
+                        <label class="form-check-label" for="product_{{ cart.product.id }}">
+                          Select for Order
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+            <div class="text-end mt-3">
+              <button type="submit" class="btn btn-primary" id="checkout-btn" disabled>Proceed to Checkout</button>
+            </div>
+          </form>
+          
+
+          <!-- <form id="cart-form" method="POST" action="{% url 'checkout' %}">
+            {% csrf_token %}
+            {% for cart in carts %}
+            <hr />
+            <div class="row">
+              <div class="col-sm-3 text-center align-self-center">
+                <img
+                  src="{{ cart.product.product_image.url }}"
+                  alt=""
+                  class="img-fluid img-thumbnail shadow-sm"
+                  height="150"
+                  width="150"
+                />
+              </div>
+
+              <div class="col-sm-9">
+                <div>
+                  <h5>{{ cart.product.title }}</h5>
+                  <p class="mb-2 text-muted small">{{ cart.product.description }}</p>
+                  <div class="my-3">
+                    <label for="quantity">Quantity:</label>
+                    <a class="minus-cart btn" pid="{{ cart.product.id }}">
+                      <i class="fas fa-minus-square fa-lg"></i>
+                    </a>
+                    <span id="quantity">{{ cart.quantity }}</span>
+                    <a class="plus-cart btn" pid="{{ cart.product.id }}">
+                      <i class="fas fa-plus-square fa-lg"></i>
+                    </a>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <a
+                      href="#"
+                      class="remove-cart btn btn-sm btn-secondary mr-3"
+                      pid="{{ cart.product.id }}"
+                    >Remove item</a>
+                    <p class="mb-0">
+                      <strong>Rs. {{ cart.product.discounted_price }}</strong>
+                    </p>
+                    Add checkbox with label
+                    <div class="form-check">
+                      <input 
+                        class="form-check-input cart-checkbox" 
+                        type="checkbox" 
+                        data-price="{{ cart.product.discounted_price }}" 
+                        data-quantity="{{ cart.quantity }}" 
+                        data-product-id="{{ cart.product.id }}" 
+                        name="selected_products" 
+                        value="{{ cart.product.id }}" />
+                      <label class="form-check-label" for="product_{{ cart.product.id }}">
+                        Select for Order
+                      </label>
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            <div class="text-end mt-3">
+              <button type="submit" class="btn btn-primary" id="checkout-btn" disabled>Proceed to Checkout</button>
+            </div>
+          </form> -->
+          <!-- Message when no items selected -->
+          <div id="no-items-message" class="alert alert-warning" style="display:none;">
+            No items selected for order.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="card">
+        <div class="card-body">
+          <h3>The Total Amount of</h3>
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+              Amount<span>Rs. <span id="amount">{{ amount }}</span></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+              Shipping<span>Rs. 50.00</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+              <div><strong>Total</strong> <small>(including VAT)</small></div>
+              <span><strong>Rs. <strong id="total_amount">{{ total_amount }}</strong></strong></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid text-center">
+  <h5 class="mb-4">We accept</h5>
+  <img src="{% static 'app/images/payment.png' %}" alt="" class="img-fluid">
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.cart-checkbox');
+    const totalAmountElement = document.getElementById('total_amount');
+    const amountElement = document.getElementById('amount');
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const noItemsMessage = document.getElementById('no-items-message');
+
+    // Function to update the total amount
+    function updateTotal() {
+      let total = 0;
+      let selectedItems = 0;
+
+      checkboxes.forEach(function(checkbox) {
+        if (checkbox.checked) {
+          const price = parseFloat(checkbox.getAttribute('data-price'));
+          const quantity = parseInt(checkbox.getAttribute('data-quantity'));
+          total += price * quantity;
+          selectedItems++;
+        }
+      });
+
+      const shippingAmount = 50; // Fixed shipping cost
+      const totalAmount = total + shippingAmount;
+      totalAmountElement.innerText = totalAmount.toFixed(2);
+      amountElement.innerText = total.toFixed(2);
+
+      // Show/hide checkout button and no-items message
+      if (selectedItems > 0) {
+        checkoutBtn.disabled = false;
+        noItemsMessage.style.display = 'none';
+      } else {
+        checkoutBtn.disabled = true;
+        noItemsMessage.style.display = 'block';
+      }
+    }
+
+    // Add event listeners to checkboxes
+    checkboxes.forEach(function(checkbox) { 
+      checkbox.addEventListener('change', updateTotal);
+    });
+
+    // Initialize total amount
+    updateTotal();
+  });
+</script>
+
+{% endblock main-content %}
